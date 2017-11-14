@@ -20,6 +20,9 @@ public class App
     	RedisCommands<String, String> syncCommands = connection.sync();
 
     	syncCommands.set("lettuce", "Hello, Redis!");
+    	String value;
+    	value = syncCommands.get("lettuce");
+    	System.out.format("value= %s%n", value);
 
     	connection.close();
    	redisClient.shutdown();
