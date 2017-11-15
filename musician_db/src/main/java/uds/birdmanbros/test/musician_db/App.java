@@ -1,11 +1,19 @@
 package uds.birdmanbros.test.musician_db;
 
+/*
 import java.util.*;
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.*;
+*/
 
+
+/*
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
+*/
 
 /**
  * Hello world!
@@ -16,7 +24,28 @@ public class App
     public static void main( String[] args )
     {
         System.out.println( "alo!" );
- 
+        
+        TsvFile tsvFile = new TsvFile("src\\main\\resources\\group_membership_short.tsv");
+        System.out.format("current>> %s%ntsv>> %s%n", tsvFile.getCurrentPath(), tsvFile.getAbsolutePath());
+        
+        /*
+		Path current_path = Paths.get(".");
+		System.out.format(">>> %s%n", current_path.toAbsolutePath());
+		
+		Path tsv_file_path = Paths.get("src\\main\\resources\\group_membership_short.tsv");
+		System.out.format(";->  %s%n", tsv_file_path.toAbsolutePath());
+		
+		try (BufferedReader reader = Files.newBufferedReader(tsv_file_path, Charset.forName("UTF-8"))) {
+		    String line = null;
+		    while ((line = reader.readLine()) != null) {
+		    	System.out.format(";->  %s%n",line);
+		    }
+		} catch (IOException x) {
+			System.err.format("IOException: %s%n", x);
+		}
+         */
+        /*
+        
     	RedisClient redisClient = RedisClient.create("redis://localhost:6379/15");
     	StatefulRedisConnection<String, String> connection = redisClient.connect();
     	RedisCommands<String, String> syncCommands = connection.sync();
@@ -32,6 +61,7 @@ public class App
 
     	connection.close();
     	redisClient.shutdown();
+    	*/
     	
     }
 }
