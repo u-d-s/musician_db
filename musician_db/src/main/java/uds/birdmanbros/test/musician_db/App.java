@@ -1,5 +1,7 @@
 package uds.birdmanbros.test.musician_db;
 
+import java.io.IOException;
+
 /*
 import java.util.*;
 import java.io.*;
@@ -25,9 +27,23 @@ public class App
     {
         System.out.println( "alo!" );
         
-        TsvFile tsvFile = new TsvFile("src\\main\\resources\\group_membership_short.tsv");
-        System.out.format("current>> %s%ntsv>> %s%n", tsvFile.getCurrentPath(), tsvFile.getAbsolutePath());
-        
+        try(TsvFile tsvFile = new TsvFile("src\\main\\resources\\group_membership_short.tsv")){
+            System.out.format("current>> %s%ntsv>> %s%n", tsvFile.getCurrentPath(), tsvFile.getAbsolutePath());
+            
+            tsvFile.setCharset("UTF-8");
+            
+            tsvFile.readHeader();
+            
+            System.out.format("str>> %s%n", tsvFile.getLineBuffer_str());
+            System.out.format("arr[0]>> %s%n", tsvFile.getLineBuffer_arr()[0]);           
+            System.out.format("arr[1]>> %s%n", tsvFile.getLineBuffer_arr()[1]);	
+            System.out.format("maxColumn>> %d%n", tsvFile.getMaxColumn());	
+            
+    
+        }catch(IOException x) {
+			System.err.format("IOException: %s%n", x);
+        }
+
         /*
 		Path current_path = Paths.get(".");
 		System.out.format(">>> %s%n", current_path.toAbsolutePath());
