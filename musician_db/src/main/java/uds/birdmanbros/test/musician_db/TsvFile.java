@@ -2,7 +2,6 @@ package uds.birdmanbros.test.musician_db;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.Arrays;
 import java.nio.charset.*;
 
 public class TsvFile implements Closeable{
@@ -10,9 +9,9 @@ public class TsvFile implements Closeable{
 	private Path currentPath;
 	private Charset charset;
 	private String delimiter;
-	private long maxRow;
+	private long dataLines;
 	private int maxColumn;
-	private long currentRow;
+	private long processedLines;
 	private String lineBuffer;
 	private String[] header;
 	private BufferedReader reader;	
@@ -72,23 +71,27 @@ public class TsvFile implements Closeable{
 		
 		
 		maxColumn = header.length;
-		currentRow = 0;
+		processedLines = 0;
 	}
 	
 	public String[] readLine() throws IOException {
 		lineBuffer = reader.readLine();	
 		
 		if(lineBuffer == null){
-			maxRow = currentRow;
-			throw new EOFException("this tsv has " + maxRow+ " data rows");
+			dataLines = processedLines;
+			throw new EOFException("total data lines processed: " + dataLines);
 		}
 		
 //		System.out.format("DEBUG1> %s%n", lineBuffer_str);
 //		System.out.format("DEBUG2> %s%n", String.join(",",lineBuffer_arr));
-		currentRow++;
+	
 		
-		String[] result = lineBuffer.split(delimiter);
+		String[] result = lineBuffer.split(delimiter,-1);
+		if(result.length != maxColumn) {
+			throw new IOException("too much/little columns ("+result.length+" columns) at data line "+(processedLines+1)+".");
+		}
 		for(int i=0;i<result.length;i++) { result[i] = result[i].trim(); }
+		processedLines++;
 		return result;
 	}
 	
@@ -107,9 +110,9 @@ public class TsvFile implements Closeable{
 		currentPath = Paths.get(".").toAbsolutePath();
 		charset = Charset.forName("UTF-8");
 		delimiter = "\t";
-		maxRow = -1;
+		dataLines = -1;
 		maxColumn = -1;
-		currentRow = -1;
+		processedLines = -1;
 	}
 	
 	public TsvFile(String p){
