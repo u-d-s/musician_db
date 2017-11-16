@@ -1,6 +1,6 @@
 package uds.birdmanbros.test.musician_db;
 
-import java.io.IOException;
+import java.io.*;
 
 /*
 import java.util.*;
@@ -34,10 +34,20 @@ public class App
             
             tsvFile.readHeader();
             
-            System.out.format("str>> %s%n", tsvFile.getLineBuffer_str());
-            System.out.format("arr[0]>> %s%n", tsvFile.getLineBuffer_arr()[0]);           
-            System.out.format("arr[1]>> %s%n", tsvFile.getLineBuffer_arr()[1]);	
+            System.out.format("arr[0]>> %s%n", tsvFile.getHeader()[0]);           
+            System.out.format("arr[1]>> %s%n", tsvFile.getHeader()[1]);	
             System.out.format("maxColumn>> %d%n", tsvFile.getMaxColumn());	
+            
+            try {
+            	while(true) {
+            		System.out.format("tcv> %s%n", String.join(",", tsvFile.readLine()));
+            	}
+            }catch(EOFException eof) {
+            	System.out.format("Ive finished reading the tsv file%n");
+            	System.out.format("  %s%n",  eof.toString());
+            }catch(IOException x) {
+            	throw x;
+            }
             
     
         }catch(IOException x) {

@@ -2,6 +2,7 @@ package uds.birdmanbros.test.musician_db;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.nio.charset.*;
 
 public class TsvFile implements Closeable{
@@ -12,8 +13,8 @@ public class TsvFile implements Closeable{
 	private long maxRow;
 	private int maxColumn;
 	private long currentRow;
-	private String[] lineBuffer_arr;
-	private String lineBuffer_str;
+	private String lineBuffer;
+	private String[] header;
 	private BufferedReader reader;	
 	
 	public void setRelativePath(String rp) {
@@ -28,26 +29,69 @@ public class TsvFile implements Closeable{
 		return maxColumn;
 	}
 	
-	public String getLineBuffer_str() {
-		return lineBuffer_str;
-	}
-	
-	public String[] getLineBuffer_arr() {
-		return lineBuffer_arr;
+	public String getLineBuffer() {
+		return lineBuffer;
 	}
 	
 	public BufferedReader getReader() {
 		return reader;
 	}
 	
+	public String[] getHeader() {
+		return header;
+	}
+	
 
 	
 	public void readHeader() throws IOException {
 		reader = Files.newBufferedReader(relativePath, charset);
-		lineBuffer_str = reader.readLine();
-		lineBuffer_arr = lineBuffer_str.split(delimiter);
-		maxColumn = lineBuffer_arr.length;
+		lineBuffer = reader.readLine();
+		header = lineBuffer.split(delimiter);
+		for(int i=0;i<header.length;i++){ header[i] = header[i].trim(); } 
+	
+//			System.out.format("DEBUG> %s%n", header[i]);
+//			System.out.format("DEBUG> %s%n", header[i].trim());
+//			
+//			header[i] = header[i].trim(); }
+//		String str = new String(header[0].getBytes("SJIS"), "SJIS");
+//		byte[] b = str.getBytes();
+//		byte[] bt = str.trim().getBytes();
+//		System.out.format("DEBUG1> ");
+//		for(int i=0;i<b.length;i++) {
+//			System.out.format("%d ", b[i]);	
+//		}
+//		System.out.format("%n");
+//		System.out.format("DEBUG2> ");
+//		for(int i=0;i<bt.length;i++) {
+//			System.out.format("%d ", bt[i]);	
+//		}
+//		System.out.format("%n");
+//		System.out.format("DEBUG1 %s %s%n", str, Arrays.toString(b));
+//		System.out.format("DEBUG2 %s %s%n",str,  Arrays.toString(bt));
+	
+		
+		
+		maxColumn = header.length;
+		currentRow = 0;
 	}
+	
+	public String[] readLine() throws IOException {
+		lineBuffer = reader.readLine();	
+		
+		if(lineBuffer == null){
+			maxRow = currentRow;
+			throw new EOFException("this tsv has " + maxRow+ " data rows");
+		}
+		
+//		System.out.format("DEBUG1> %s%n", lineBuffer_str);
+//		System.out.format("DEBUG2> %s%n", String.join(",",lineBuffer_arr));
+		currentRow++;
+		
+		String[] result = lineBuffer.split(delimiter);
+		for(int i=0;i<result.length;i++) { result[i] = result[i].trim(); }
+		return result;
+	}
+	
 	
 	public String getCurrentPath(){
 		return currentPath.toString();
@@ -57,6 +101,7 @@ public class TsvFile implements Closeable{
 		return currentPath.resolve(relativePath).normalize().toString(); 
 	}
 	
+
 	
 	public TsvFile(){
 		currentPath = Paths.get(".").toAbsolutePath();
