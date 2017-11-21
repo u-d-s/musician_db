@@ -15,6 +15,7 @@ public class TsvFile implements Closeable{
 	private String lineBuffer;
 	private String[] header;
 	private BufferedReader reader;	
+	private int printProcessedLinesEvery;
 	
 	public void setRelativePath(String rp) {
 		relativePath = Paths.get(rp);
@@ -40,8 +41,17 @@ public class TsvFile implements Closeable{
 		return header;
 	}
 	
+	public int getPrintProcessedLinesEvery() {
+		return printProcessedLinesEvery;
+	}
 
+	public void setPrintProcessedLinesEvery(int printProcessedLinesEvery) {
+		this.printProcessedLinesEvery = printProcessedLinesEvery;
+	}
 	
+	
+	
+
 	public void readHeader() throws IOException {
 		reader = Files.newBufferedReader(relativePath, charset);
 		lineBuffer = reader.readLine();
@@ -71,14 +81,14 @@ public class TsvFile implements Closeable{
 		
 		
 		maxColumn = header.length;
-		processedLines = 0;
+		processedLines = 1;
 	}
 	
 	public String[] readLine() throws IOException {
 		lineBuffer = reader.readLine();	
 		
 		if(lineBuffer == null){
-			dataLines = processedLines;
+			dataLines = processedLines-1;
 			throw new EOFException("total data lines processed: " + dataLines);
 		}
 		
@@ -91,8 +101,17 @@ public class TsvFile implements Closeable{
 			throw new IOException("too much/little columns ("+result.length+" columns) at data line "+(processedLines+1)+".");
 		}
 		for(int i=0;i<result.length;i++) { result[i] = result[i].trim(); }
+		
 		processedLines++;
+		printProcessedLines();
+		
 		return result;
+	}
+	
+	void printProcessedLines() {
+		if(processedLines % printProcessedLinesEvery == 0) {
+			System.out.format("processedLine>> %d%n", processedLines);
+		}
 	}
 	
 	
@@ -113,6 +132,7 @@ public class TsvFile implements Closeable{
 		dataLines = -1;
 		maxColumn = -1;
 		processedLines = -1;
+		printProcessedLinesEvery = 10;
 	}
 	
 	public TsvFile(String p){
