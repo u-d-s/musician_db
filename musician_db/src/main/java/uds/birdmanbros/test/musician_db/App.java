@@ -5,7 +5,7 @@ public class App
 {
     public static void main( String[] args )
     {
-    	TsvToRedis application = new TsvToRedis();
+    	RedisToMongo application = new RedisToMongo();
     	application.run();
     }
     
