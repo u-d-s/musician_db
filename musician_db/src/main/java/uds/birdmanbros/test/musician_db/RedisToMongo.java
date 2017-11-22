@@ -29,7 +29,10 @@ public class RedisToMongo {
 //    	MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("myTestCollection");
 		
 		
-		
+		//（方針）
+    	// Band は「一つの」バンドに関する処理をおこなう
+    	// 複数のBandの繰りまわりは、呼び出しもとメソッドで行う
+    	
 		
 		Band band = new Band();
 		band.setRedisCommands(redisSyncCommands);
