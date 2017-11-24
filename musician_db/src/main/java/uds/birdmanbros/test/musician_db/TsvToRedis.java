@@ -9,6 +9,7 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 
 //import uds.birdmanbros.test.musician_db.TsvToRedis.Artist;
+import uds.birdmanbros.test.musician_db.TsvFile;
 
 public class TsvToRedis {
 	
