@@ -1,6 +1,6 @@
 package uds.birdmanbros.test.musician_db;
 
-import java.util.List;
+import java.util.*;
 
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
@@ -15,7 +15,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 public class RedisToMongo {
-	private String keyOfBands_rex; 
 	
 	public void run() {
 		System.out.format("RedisToMongo>> run%n");
@@ -29,20 +28,21 @@ public class RedisToMongo {
 //    	MongoCollection<Document> mongoCollection = mongoDatabase.getCollection("myTestCollection");
 		
 		
-		//（方針）
-    	// Band は「一つの」バンドに関する処理をおこなう
-    	// 複数のBandの繰りまわりは、呼び出しもとメソッドで行う
     	
-		
+    	String keyOfArtists_rex = "band:U*";
+    	
+		Band.setRedisCommands(redisSyncCommands);
+		Artist.setRedisCommands(redisSyncCommands);
 		Band band = new Band();
-		band.setRedisCommands(redisSyncCommands);
 //		band.setMongoCollection(mongoCollection);
 		
-		long len_kob = band.getKeyOfBands(keyOfBands_rex);
+		List<String> keyOfArtists = redisSyncCommands.keys(keyOfArtists_rex);
 		
-		for(int i=0; i<len_kob;i++) {
-			band.setArtist();
+		int i=0;
+		for(String koa: keyOfArtists) {
+			band.setKeyOfArtists(koa);
 			band.writeIntoMongoDB();
+//			System.out.format("%d DEBUG>> %s%n", i++,koa);
 		}
 		
 		
@@ -54,55 +54,107 @@ public class RedisToMongo {
 	}
 	
 	
-	
-	public RedisToMongo() {
-		keyOfBands_rex = "band:U*";
-	}
-	
+
 	
 	static private class Band{
-		private List<String> keyOfBands;
-		private String keyOfBands_rex;
-		private RedisCommands<String, String> redisCommands;
-		private MongoCollection<Document> mongoCollection;
+		static private RedisCommands<String, String> redisCommands;
+		static private MongoCollection<Document> mongoCollection;
+		private String bandName;
+		private LinkedList<Artist> artists;
 		
-		public long getKeyOfBands(String kob_rex) {
-			// set keyOfBands;
+//		public long getKeyOfBands(String kob_rex) {
+//			// set keyOfBands;
+//			
+//			keyOfBands_rex = kob_rex;
+//			keyOfBands = redisCommands.keys(keyOfBands_rex);
+//			
+////			Jsonb jsonb = JsonbBuilder.create();
+////			System.out.format("DEBUG>> %s%n",  jsonb.toJson(keyOfBands));
+//			
+//			return keyOfBands.size();
+//		}
+		
+		public void setKeyOfArtists(String keyOfArtists) {
+			bandName = keyOfArtists.trim().substring(5);
+			Set<String> artists_sstr = redisCommands.smembers(keyOfArtists);
 			
-			keyOfBands_rex = kob_rex;
-			keyOfBands = redisCommands.keys(keyOfBands_rex);
-			
-//			Jsonb jsonb = JsonbBuilder.create();
-//			System.out.format("DEBUG>> %s%n",  jsonb.toJson(keyOfBands));
-			
-			return keyOfBands.size();
+			for(String artist_str: artists_sstr) {
+				artists.add(new Artist(artist_str, bandName));
+			}
 		}
 		
-		public void setArtist() {
-			;
-		}
 		
 		public void writeIntoMongoDB() {
 			;
 		}
 
-		public RedisCommands<String, String> getRedisCommands() {
+		static public RedisCommands<String, String> getRedisCommands() {
 			return redisCommands;
 		}
 
-		public void setRedisCommands(RedisCommands<String, String> redisCommands) {
-			this.redisCommands = redisCommands;
+		static public void setRedisCommands(RedisCommands<String, String> rc) {
+			redisCommands = rc;
 		}
 
-		public MongoCollection<Document> getMongoCollection() {
+		static public MongoCollection<Document> getMongoCollection() {
 			return mongoCollection;
 		}
 
-		public void setMongoCollection(MongoCollection<Document> mongoCollection) {
-			this.mongoCollection = mongoCollection;
+		static public void setMongoCollection(MongoCollection<Document> mc) {
+			mongoCollection = mc;
 		}
 		
 		
+		public Band() {
+			artists = new LinkedList<Artist>();
+		}
 		
+		
+	}
+	
+	
+	static private class Artist{
+		static private RedisCommands<String, String> redisCommands;
+		static private MongoCollection<Document> mongoCollection;
+		private String artistName;
+		private LinkedList<String> roles;
+		private StringBuilder stringBuilder;
+		
+
+		
+		
+		static public RedisCommands<String, String> getRedisCommands() {
+			return redisCommands;
+		}
+		static public void setRedisCommands(RedisCommands<String, String> rc) {
+			redisCommands = rc;
+		}
+		static public MongoCollection<Document> getMongoCollection() {
+			return mongoCollection;
+		}
+		static public void setMongoCollection(MongoCollection<Document> mc) {
+			mongoCollection = mc;
+		}
+		
+		public Artist() {
+			roles = new LinkedList<String>();
+			stringBuilder = new StringBuilder("artist:");
+		}
+		public Artist(String artist, String bandName) {
+			this();
+			artistName = artist.trim();
+//			System.out.format("DEBUG>> %s%n", artistName);
+			
+			stringBuilder.setLength("artist:".length());
+			stringBuilder.append(bandName).append(":").append(artistName);
+			Set<String> roles_sstr = redisCommands.smembers(stringBuilder.toString());
+//			System.out.format("DEBUG>> %s%n", stringBuilder.toString());
+			
+			for(String role: roles_sstr) {
+				roles.add(role.trim());
+//				System.out.format("DEBUG>> %s%n", role);
+			}
+			
+		}
 	}
 }
