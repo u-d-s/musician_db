@@ -20,10 +20,13 @@ public class RedisToMongo {
 
 	public void run() {
 		System.out.format("RedisToMongo>> run%n");
+		
+		try(RedisDB redis = new RedisDB();
+				MongoDB mongo = new MongoDB()){
 
-		RedisClient redisClient = RedisClient.create("redis://localhost:6379/15");
-		StatefulRedisConnection<String, String> redisConnection = redisClient.connect();
-		RedisCommands<String, String> redisSyncCommands = redisConnection.sync();
+//		RedisClient redisClient = RedisClient.create("redis://localhost:6379/15");
+//		StatefulRedisConnection<String, String> redisConnection = redisClient.connect();
+//		RedisCommands<String, String> redisSyncCommands = redisConnection.sync();
 
 		// MongoClient mongoClient = new MongoClient( "localhost" , 27017 );
 		// MongoDatabase mongoDatabase = mongoClient.getDatabase("test");
@@ -32,12 +35,13 @@ public class RedisToMongo {
 
 		String keyOfArtists_rex = "band:U*";
 
-		Band.setRedisCommands(redisSyncCommands);
-		Artist.setRedisCommands(redisSyncCommands);
+		Band.setRedisDB(redis);
+		Band.setMongoDB(mongo);
+		Artist.setRedisDB(redis);
 		Band band = new Band();
 		// band.setMongoCollection(mongoCollection);
 
-		List<String> keyOfArtists = redisSyncCommands.keys(keyOfArtists_rex);
+		List<String> keyOfArtists = redis.keys(keyOfArtists_rex);
 
 		int i = 0;
 		for (String koa : keyOfArtists) {
@@ -51,11 +55,12 @@ public class RedisToMongo {
 //			String[] aaa = { "a", "bc" };
 
 			System.out.format("DEBUG>> %s%n", jsonb.toJson(band));
-			// System.out.format("%d DEBUG>> %s%n", i++,koa);
+//			 System.out.format("%d DEBUG>> %s%n", i++,koa);
 		}
-
-		redisConnection.close();
-		redisClient.shutdown();
+		
+		}catch(Exception x) {
+			x.printStackTrace();
+		}
 
 		// mongoClient.close();
 

@@ -8,14 +8,13 @@ import javax.json.bind.annotation.JsonbTransient;
 
 import org.bson.Document;
 
-import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.mongodb.client.MongoCollection;
 
+import uds.birdmanbros.test.musician_db.RedisDB;
+
 public class Artist {
-	@JsonbTransient
-	static private RedisCommands<String, String> redisCommands;
-	@JsonbTransient
-	static private MongoCollection<Document> mongoCollection;
+//	@JsonbTransient
+	static private RedisDB redis = null;
 	@JsonbProperty("name")
 	private String artistName;
 	private LinkedList<String> roles;
@@ -23,34 +22,22 @@ public class Artist {
 //	@JsonbTransient
 //	private StringBuilder stringBuilder;
 
-	static public RedisCommands<String, String> getRedisCommands() {
-		return redisCommands;
+	static public RedisDB getRedis() {
+		return redis;
 	}
 
-	static public void setRedisCommands(RedisCommands<String, String> rc) {
-		redisCommands = rc;
+	static public void setRedisDB(RedisDB rd) {
+		redis = rd;
 	}
-
-	static public MongoCollection<Document> getMongoCollection() {
-		return mongoCollection;
-	}
-
-	static public void setMongoCollection(MongoCollection<Document> mc) {
-		mongoCollection = mc;
-	}
-
 	public String getArtistName() {
 		return artistName;
 	}
-
 	public void setArtistName(String artistName) {
 		this.artistName = artistName;
 	}
-
 	public LinkedList<String> getRoles() {
 		return roles;
 	}
-
 	public void setRoles(LinkedList<String> roles) {
 		this.roles = roles;
 	}
@@ -70,7 +57,7 @@ public class Artist {
 
 //		stringBuilder.setLength("artist:".length());
 		stringBuilder.append(bandName).append(":").append(artistName);
-		Set<String> roles_sstr = redisCommands.smembers(stringBuilder.toString());
+		Set<String> roles_sstr = redis.smembers(stringBuilder.toString());
 //		 System.out.format("DEBUG2>> %s%n", roles_sstr.toString());
 
 		for (String role : roles_sstr) {

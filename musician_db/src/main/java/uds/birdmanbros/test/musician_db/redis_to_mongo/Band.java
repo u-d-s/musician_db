@@ -4,18 +4,15 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTransient;
 
-import org.bson.Document;
-
-import com.lambdaworks.redis.api.sync.RedisCommands;
-import com.mongodb.client.MongoCollection;
+import uds.birdmanbros.test.musician_db.MongoDB;
+import uds.birdmanbros.test.musician_db.RedisDB;
 
 public class Band {
-	@JsonbTransient
-	static private RedisCommands<String, String> redisCommands = null;
-	@JsonbTransient
-	static private MongoCollection<Document> mongoCollection = null;
+//	@JsonbTransient
+	static private RedisDB redis = null;
+//	@JsonbTransient
+	static private MongoDB mongo = null;
 	@JsonbProperty("name")
 	private String bandName;
 	private LinkedList<Artist> artists;
@@ -36,7 +33,7 @@ public class Band {
 		bandName = keyOfArtists.trim().substring(5);
 		
 		artists.clear();
-		Set<String> artists_sstr = redisCommands.smembers(keyOfArtists);
+		Set<String> artists_sstr = redis.smembers(keyOfArtists);
 		for (String artist_str : artists_sstr) {
 			artists.add(new Artist(artist_str, bandName));
 		}
@@ -62,20 +59,20 @@ public class Band {
 		this.artists = artists;
 	}
 
-	static public RedisCommands<String, String> getRedisCommands() {
-		return redisCommands;
+	static public RedisDB getRedis() {
+		return redis;
 	}
 
-	static public void setRedisCommands(RedisCommands<String, String> rc) {
-		redisCommands = rc;
+	static public void setRedisDB(RedisDB rd) {
+		redis = rd;
+	}
+	
+	public static MongoDB getMongoDB() {
+		return mongo;
 	}
 
-	static public MongoCollection<Document> getMongoCollection() {
-		return mongoCollection;
-	}
-
-	static public void setMongoCollection(MongoCollection<Document> mc) {
-		mongoCollection = mc;
+	public static void setMongoDB(MongoDB mongo) {
+		Band.mongo = mongo;
 	}
 
 	public Band() {
