@@ -3,6 +3,9 @@ package uds.birdmanbros.test.musician_db.redis_to_mongo;
 import java.util.LinkedList;
 import java.util.Set;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTransient;
 
@@ -18,9 +21,24 @@ public class Artist {
 	@JsonbProperty("name")
 	private String artistName;
 	private LinkedList<String> roles;
-	
 //	@JsonbTransient
 //	private StringBuilder stringBuilder;
+//	private JsonbConfig config;
+//	private Jsonb jsonb;
+	
+	
+	
+	Document createDocument() {
+		Document result = new Document("name", artistName);
+		
+		if(!roles.isEmpty()) {
+			result.append("roles", roles);
+		}
+		
+		return result;
+		
+	}
+	
 
 	static public RedisDB getRedis() {
 		return redis;
@@ -43,8 +61,11 @@ public class Artist {
 	}
 
 	public Artist() {
-		roles = null;
-//		roles = new LinkedList<String>();
+//		roles = null;
+//		config = new JsonbConfig().withFormatting(true);
+//		config.withNullValues(true);
+//		jsonb = JsonbBuilder.create(config);
+		roles = new LinkedList<String>();
 //		stringBuilder = new StringBuilder("artist:");
 	}
 
@@ -61,7 +82,7 @@ public class Artist {
 //		 System.out.format("DEBUG2>> %s%n", roles_sstr.toString());
 
 		for (String role : roles_sstr) {
-			if(roles == null) { roles = new LinkedList<String>();}
+//			if(roles == null) { roles = new LinkedList<String>();}
 			roles.add(role.trim());
 //			System.out.format("DEBUG3>> %s%n", role);
 		}

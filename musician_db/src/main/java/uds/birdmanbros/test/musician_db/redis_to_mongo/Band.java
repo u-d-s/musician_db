@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.json.bind.annotation.JsonbProperty;
 
+import org.bson.Document;
+
 import uds.birdmanbros.test.musician_db.MongoDB;
 import uds.birdmanbros.test.musician_db.RedisDB;
 
@@ -39,9 +41,17 @@ public class Band {
 		}
 	}
 
-	public void writeIntoMongoDB() {
-		;
+	public Document createDocument() {
+		LinkedList<Document> artist_docs = new LinkedList<>();
+		for(Artist artist: artists) {
+			artist_docs.add(artist.createDocument());
+		}
+		
+		return new Document("name",bandName)
+							.append("artists", artist_docs);
 	}
+	
+	
 
 	public String getBandName() {
 		return bandName;
@@ -74,7 +84,10 @@ public class Band {
 	public static void setMongoDB(MongoDB mongo) {
 		Band.mongo = mongo;
 	}
+	
 
+	
+	
 	public Band() {
 		artists = new LinkedList<Artist>();
 	}

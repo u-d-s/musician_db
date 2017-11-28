@@ -33,30 +33,38 @@ public class RedisToMongo {
 		// MongoCollection<Document> mongoCollection =
 		// mongoDatabase.getCollection("myTestCollection");
 
+		JsonbConfig config = new JsonbConfig().withFormatting(true);
+		config.withNullValues(true);
+		Jsonb jsonb = JsonbBuilder.create(config);
+			
+			
 		String keyOfArtists_rex = "band:U*";
 
 		Band.setRedisDB(redis);
-		Band.setMongoDB(mongo);
 		Artist.setRedisDB(redis);
+//		mongo.setBulkOperations(50);
+		Band.setMongoDB(mongo);
 		Band band = new Band();
 		// band.setMongoCollection(mongoCollection);
 
 		List<String> keyOfArtists = redis.keys(keyOfArtists_rex);
 
+		System.out.format("DEBUG>> %s%n", jsonb.toJson(mongo));
 		int i = 0;
 		for (String koa : keyOfArtists) {
 			band.updateBand(koa);
-			band.writeIntoMongoDB();
+			mongo.pushIntoBulkWriteQueue(band.createDocument());
+			System.out.format(">>DEBUG i %d%n", i++);
+//			System.out.format("DEBUG2>> %s%n", jsonb.toJson(band.createDocument()));
 
 //			JsonbConfig config = new JsonbConfig().withNullValues(true).withFormatting(true);
-			JsonbConfig config = new JsonbConfig().withFormatting(true);
-			Jsonb jsonb = JsonbBuilder.create(config);
 
 //			String[] aaa = { "a", "bc" };
 
-			System.out.format("DEBUG>> %s%n", jsonb.toJson(band));
+//			System.out.format("DEBUG>> %s%n", jsonb.toJson(band));
 //			 System.out.format("%d DEBUG>> %s%n", i++,koa);
 		}
+		mongo.flushBulkWriteQueue();
 		
 		}catch(Exception x) {
 			x.printStackTrace();
