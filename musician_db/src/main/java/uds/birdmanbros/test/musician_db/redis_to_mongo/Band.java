@@ -47,7 +47,7 @@ public class Band {
 			artist_docs.add(artist.createDocument());
 		}
 		
-		return new Document("name",bandName)
+		return new Document("_id",bandName)
 							.append("artists", artist_docs);
 	}
 	

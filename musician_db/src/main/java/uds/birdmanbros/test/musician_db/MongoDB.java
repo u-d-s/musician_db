@@ -22,28 +22,39 @@ public class MongoDB implements Closeable {
 	private String collection;
 	private int bulkWriteQueueMaxSize;
 	private LinkedList<WriteModel<Document>> bulkWriteQueue;
+	private long processedDocuments;
+	private int printProcessedDocumentsEvery;
 	
 	
 	
 	public void pushIntoBulkWriteQueue(Document document) {
-		System.out.format("before>> queue size %d%n", bulkWriteQueue.size());
+//		System.out.format("before>> queue size %d%n", bulkWriteQueue.size());
 //		JsonbConfig config = new JsonbConfig().withFormatting(true).withNullValues(true);
 //		Jsonb jsonb = JsonbBuilder.create(config);
 //		System.out.format("DEBUG>> %s%n", jsonb.toJson(bulkWriteQueue));
 //		
 		
-		if(bulkWriteQueue.size() < bulkWriteQueueMaxSize) {
-			bulkWriteQueue.addLast(new InsertOneModel<Document>(document));
-		}else {
+		if(bulkWriteQueue.size() >= bulkWriteQueueMaxSize) {
 			flushBulkWriteQueue();
 		}
+		bulkWriteQueue.addLast(new InsertOneModel<Document>(document));
 	}
 	
 	public void flushBulkWriteQueue() {
-		System.out.format(">> flush%n");
+//		System.out.format(">> flush%n");
 		mongoCollection.bulkWrite(bulkWriteQueue, new BulkWriteOptions().ordered(true)); 
+		processedDocuments += bulkWriteQueue.size();
 		bulkWriteQueue.clear();
+		
+		printProcessedDocuments();
 	}
+	
+	void printProcessedDocuments() {
+		if(processedDocuments % printProcessedDocumentsEvery < bulkWriteQueueMaxSize) {
+			System.out.format("processedDocuments>> %d%n", processedDocuments);
+		}
+	}
+	
 	
 	
 	public int getBulkWriteQueueMaxSize() {
@@ -52,7 +63,14 @@ public class MongoDB implements Closeable {
 	public void setBulkOperations(int bulkWriteQueueMaxSize) {
 		this.bulkWriteQueueMaxSize = bulkWriteQueueMaxSize;
 	}
+	public long getProcessedDocuments() {
+		return processedDocuments;
+	}
+	public void setProcessedDocuments(long processedDocuments) {
+		this.processedDocuments = processedDocuments;
+	}
 
+	
 	
 	@Override
 	public void close() {
@@ -71,6 +89,8 @@ public class MongoDB implements Closeable {
 		mongoCollection = mongoDatabase.getCollection(collection);
 		
 		bulkWriteQueue = new LinkedList<WriteModel<Document>>();
-		bulkWriteQueueMaxSize = 16;
+		bulkWriteQueueMaxSize = 64;
+		processedDocuments = 0;
+		printProcessedDocumentsEvery = 100;
 	}
 }
