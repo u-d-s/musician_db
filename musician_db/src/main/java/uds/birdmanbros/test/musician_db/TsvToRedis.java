@@ -47,16 +47,16 @@ public class TsvToRedis {
 	            			syncCommands.sadd(lineDataSet.getKeyOfArtist(), lineDataSet.getArtist());
 //	            			System.out.format("DEBUG>> %s %s%n", lineDataSet.getKeyOfArtist(), lineDataSet.getArtist());
 	            			counter_isValid++;
+	            			
+		            		if(lineDataSet.hasRoles()) {
+		            			String[] roles = lineDataSet.getRoles();
+		            			for(String role: roles)
+		                			syncCommands.sadd(lineDataSet.getKeyOfRoles(), role);
+//		            				System.out.format("DEBUG>> %s %s%n", lineDataSet.getKeyOfRoles(), role);
+		            			counter_hasRoles++;
+		            		}
+		            		
 	            		}
-	            		
-	            		if(lineDataSet.hasRoles()) {
-	            			String[] roles = lineDataSet.getRoles();
-	            			for(String role: roles)
-	                			syncCommands.sadd(lineDataSet.getKeyOfRoles(), role);
-//	            				System.out.format("DEBUG>> %s %s%n", lineDataSet.getKeyOfRoles(), role);
-	            			counter_hasRoles++;
-	            		}
-	            		
 
 	 
 	            	}
