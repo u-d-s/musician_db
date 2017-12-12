@@ -1,4 +1,4 @@
-package uds.birdmanbros.test.musician_db.redis_to_mongo;
+package uds.birdmanbros.test.musician_db;
 
 import java.util.LinkedList;
 import java.util.Set;
@@ -7,14 +7,12 @@ import javax.json.bind.annotation.JsonbProperty;
 
 import org.bson.Document;
 
-import uds.birdmanbros.test.musician_db.MongoDB;
-import uds.birdmanbros.test.musician_db.RedisDB;
-
 public class Band {
 //	@JsonbTransient
 	static private RedisDB redis = null;
 //	@JsonbTransient
 	static private MongoDB mongo = null;
+	static private Neo4jDB neo4j = null;
 	@JsonbProperty("name")
 	private String bandName;
 	private LinkedList<Artist> artists;
@@ -60,6 +58,8 @@ public class Band {
 	public void setBandName(String bandName) {
 		this.bandName = bandName;
 	}
+	
+
 
 	public LinkedList<Artist> getArtists() {
 		return artists;
@@ -83,6 +83,12 @@ public class Band {
 
 	public static void setMongoDB(MongoDB mongo) {
 		Band.mongo = mongo;
+	}
+	public static Neo4jDB getNeo4jDB() {
+		return neo4j;
+	}
+	public static void setNeo4jDB(Neo4jDB neo4j) {
+		Band.neo4j = neo4j;
 	}
 	
 

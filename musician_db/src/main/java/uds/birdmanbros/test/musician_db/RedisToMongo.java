@@ -13,9 +13,6 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.mongodb.client.MongoCollection;
 
-import uds.birdmanbros.test.musician_db.redis_to_mongo.Artist;
-import uds.birdmanbros.test.musician_db.redis_to_mongo.Band;
-
 public class RedisToMongo {
 
 	public void run() {

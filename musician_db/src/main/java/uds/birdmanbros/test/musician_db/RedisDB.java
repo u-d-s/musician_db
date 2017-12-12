@@ -24,6 +24,21 @@ public class RedisDB implements Closeable{
 		return redisSyncCommands.keys(key_rex);
 	}
 	
+	public void set(String key, String value) {
+		redisSyncCommands.set(key, value);
+	}
+	
+	public void expire(String key, long expiry) {
+		redisSyncCommands.expire(key, expiry);
+	}
+	
+	public String get(String key) {
+		return redisSyncCommands.get(key);
+	}
+	
+	public void setex(String key, long expiry, String value) {
+		redisSyncCommands.setex(key,expiry,value);
+	}
 	
 	
 	@Override
@@ -34,12 +49,16 @@ public class RedisDB implements Closeable{
 	}
 	
 	
-	public RedisDB() {
-		uri = "redis://localhost:6379/";
-		DBNumber = 15;
+	public RedisDB(String uri, int DBNumber) {
 		redisClient = RedisClient.create(uri + DBNumber);
 		redisConnection = redisClient.connect();
 		redisSyncCommands = redisConnection.sync();
 	}
+	
+	public RedisDB() {
+		this("redis://localhost:6379/", 15);
+	}
+	
+
 
 }

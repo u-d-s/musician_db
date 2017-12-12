@@ -24,6 +24,7 @@ public class MongoDB implements Closeable {
 	private LinkedList<WriteModel<Document>> bulkWriteQueue;
 	private long processedDocuments;
 	private int printProcessedDocumentsEvery;
+	private Watcher watcher;
 	
 	
 	
@@ -49,11 +50,47 @@ public class MongoDB implements Closeable {
 		printProcessedDocuments();
 	}
 	
-	void printProcessedDocuments() {
+	private void printProcessedDocuments() {
 		if(processedDocuments % printProcessedDocumentsEvery < bulkWriteQueueMaxSize) {
 			System.out.format("processedDocuments>> %d%n", processedDocuments);
 		}
 	}
+	
+	public void watchedBy(Watcher watcher) {
+		this.watcher = watcher;
+	}
+	
+	public void change() {
+		
+		PingBand band = new PingBand();
+		
+		LinkedList<String> roles = new LinkedList<>();
+		roles.add("band master");
+		roles.add("vocal");
+		roles.add("the one");
+		
+		PingArtist artist = new PingArtist();
+		artist.setArtistName("James Brown Jr");
+		artist.setRoles(roles);
+		LinkedList<Artist> artists = new LinkedList<>();
+		artists.add(artist);
+		
+			
+		roles = new LinkedList<>();
+		roles.add("MC");
+		
+		artist = new PingArtist();
+		artist.setArtistName("a brother Jr");
+		artist.setRoles(roles);
+		artists.add(artist);
+		
+		band.setArtists(artists);
+		
+		band.setBandName("litte JBs");
+
+		watcher.change(band);
+	}
+	
 	
 	
 	
