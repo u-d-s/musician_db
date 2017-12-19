@@ -45,11 +45,13 @@ public class RedisDB implements Closeable{
 	public void close() {
 		redisConnection.close();
 		redisClient.shutdown();
-		System.out.format("RedisDB has closed%n");
+		System.out.format("RedisDB has closed; %s %d %n", uri, DBNumber);
 	}
 	
 	
-	public RedisDB(String uri, int DBNumber) {
+	public RedisDB(String u, int n) {
+		uri = u;
+		DBNumber = n;
 		redisClient = RedisClient.create(uri + DBNumber);
 		redisConnection = redisClient.connect();
 		redisSyncCommands = redisConnection.sync();

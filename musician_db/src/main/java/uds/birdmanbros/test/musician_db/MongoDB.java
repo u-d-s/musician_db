@@ -1,6 +1,7 @@
 package uds.birdmanbros.test.musician_db;
 
 import java.io.Closeable;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.bson.Document;
@@ -21,10 +22,11 @@ public class MongoDB implements Closeable {
 	private String db;
 	private String collection;
 	private int bulkWriteQueueMaxSize;
-	private LinkedList<WriteModel<Document>> bulkWriteQueue;
+	private LinkedList<InsertOneModel<Document>> bulkWriteQueue;
+//	private LinkedList<WriteModel<Document>> bulkWriteQueue;
 	private long processedDocuments;
 	private int printProcessedDocumentsEvery;
-	private Watcher watcher;
+	private MongoWatcher watcher;
 	
 	
 	
@@ -43,7 +45,10 @@ public class MongoDB implements Closeable {
 	
 	public void flushBulkWriteQueue() {
 //		System.out.format(">> flush%n");
-		mongoCollection.bulkWrite(bulkWriteQueue, new BulkWriteOptions().ordered(true)); 
+		mongoCollection.bulkWrite(bulkWriteQueue, new BulkWriteOptions().ordered(true));
+		for(InsertOneModel<Document> model: bulkWriteQueue) {
+			change(model.getDocument());
+		}
 		processedDocuments += bulkWriteQueue.size();
 		bulkWriteQueue.clear();
 		
@@ -56,39 +61,51 @@ public class MongoDB implements Closeable {
 		}
 	}
 	
-	public void watchedBy(Watcher watcher) {
+	public void watchedBy(MongoWatcher watcher) {
 		this.watcher = watcher;
 	}
 	
-	public void change() {
+	private void change(Document doc) {
 		
-		PingBand band = new PingBand();
+//		PingBand band = new PingBand();
+//		
+//		LinkedList<String> roles = new LinkedList<>();
+//		roles.add("band master");
+//		roles.add("vocal");
+//		roles.add("the one");
+//		
+//		PingArtist artist = new PingArtist();
+//		artist.setArtistName("James Brown Jr6");
+//		artist.setRoles(roles);
+//		LinkedList<Artist> artists = new LinkedList<>();
+//		artists.add(artist);
+//		
+//			
+//		roles = new LinkedList<>();
+//		roles.add("MC");
+//		
+//		artist = new PingArtist();
+//		artist.setArtistName("a brother Jr5");
+//		artist.setRoles(roles);
+//		artists.add(artist);
+//		
+//		band.setArtists(artists);
+//		
+//		band.setBandName("OB JBs6");
 		
-		LinkedList<String> roles = new LinkedList<>();
-		roles.add("band master");
-		roles.add("vocal");
-		roles.add("the one");
-		
-		PingArtist artist = new PingArtist();
-		artist.setArtistName("James Brown Jr");
-		artist.setRoles(roles);
-		LinkedList<Artist> artists = new LinkedList<>();
-		artists.add(artist);
-		
-			
-		roles = new LinkedList<>();
-		roles.add("MC");
-		
-		artist = new PingArtist();
-		artist.setArtistName("a brother Jr");
-		artist.setRoles(roles);
-		artists.add(artist);
-		
-		band.setArtists(artists);
-		
-		band.setBandName("litte JBs");
+//		Document bandDoc = new Document();
+//		Document artistDoc1 = new Document();
+//		Document artistDoc2 = new Document();
+//		
+//		artistDoc1.append("artistName", "Nishikawa")
+//					.append("roles", Arrays.asList("drugger", "keyboard"));
+//		artistDoc2.append("artistName", "the other one")
+//					.append("roles", Arrays.asList("base","comedian"));
+//		
+//		bandDoc.append("bandName",  "Dcome")
+//		.append("artists", Arrays.asList(artistDoc1, artistDoc2));
 
-		watcher.change(band);
+		watcher.change(doc);
 	}
 	
 	
@@ -112,20 +129,24 @@ public class MongoDB implements Closeable {
 	@Override
 	public void close() {
 		mongoClient.close();
-		System.out.format("MongoDB has closed.%n");
+		System.out.format("MongoDB has closed; %s %d %s %s %n", host, port, db, collection);
 	}
 	
 	public MongoDB() {
-		host = "localhost";
-		port = 27017;
-		db = "7d7w";
-		collection = "musicians";
+		this("localhost", 27017, "7d7w", "musicians");
+	}
+	
+	public MongoDB(String h, int p, String d, String c) {
+		host = h;
+		port = p;
+		db = d;
+		collection = c;
 		
 		mongoClient = new MongoClient(host,port);
 		mongoDatabase = mongoClient.getDatabase(db);
 		mongoCollection = mongoDatabase.getCollection(collection);
 		
-		bulkWriteQueue = new LinkedList<WriteModel<Document>>();
+		bulkWriteQueue = new LinkedList<InsertOneModel<Document>>();
 		bulkWriteQueueMaxSize = 64;
 		processedDocuments = 0;
 		printProcessedDocumentsEvery = 100;

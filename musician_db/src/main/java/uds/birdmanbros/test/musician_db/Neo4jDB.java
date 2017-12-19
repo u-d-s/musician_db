@@ -1,6 +1,7 @@
 package uds.birdmanbros.test.musician_db;
 
 import java.io.Closeable;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,15 @@ public class Neo4jDB implements Closeable {
  	private ObjectMapper om;
  	
  	
- 	List<Map<String,Object>> readByCypherStatement(String statement) throws JsonProcessingException {
+ 	List<Map<String,Object>> readByCypherStatement(String statement) throws JsonProcessingException, UnsupportedEncodingException {
+ 		byte[] bytes = statement.getBytes("UTF-8");
+ 		String statement_utf8 = new String(bytes,"UTF-8");
+ 		
  		List<Map<String, Object>> results_l = new LinkedList<>();
  		StatementResult results_it = session.readTransaction( new TransactionWork<StatementResult>(){
  	    	 @Override
              public StatementResult execute(Transaction tx){
- 	    		return tx.run(statement);
+ 	    		return tx.run(statement_utf8);
              }
          } );
  		while (results_it.hasNext()){
@@ -43,12 +47,15 @@ public class Neo4jDB implements Closeable {
  		
  	}
  	
-	void writeByCypherStatement(String statement) throws JsonProcessingException {
+	void writeByCypherStatement(String statement) throws JsonProcessingException, UnsupportedEncodingException {
+ 		byte[] bytes = statement.getBytes("UTF-8");
+ 		String statement_utf8 = new String(bytes,"UTF-8");
+
 
 		session.readTransaction(new TransactionWork<StatementResult>() {
 			@Override
 			public StatementResult execute(Transaction tx) {
-				return tx.run(statement);
+				return tx.run(statement_utf8);
 			}
 		});
 
@@ -61,7 +68,7 @@ public class Neo4jDB implements Closeable {
  		session.close();
  		driver.close();
  		
- 		System.out.format("Neo4jDB has closed.%n");
+ 		System.out.format("Neo4jDB has closed; %s%n", uri);
  	}
  	
  	public Neo4jDB() {

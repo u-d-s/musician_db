@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class App {
 	public static void main(String[] args) {
-		MongoToRedisAndNeo4j app = new MongoToRedisAndNeo4j();
+		RedisToMongo2 app = new RedisToMongo2();
 		app.run();
 	}
 }

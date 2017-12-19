@@ -35,7 +35,8 @@ public class Band {
 		artists.clear();
 		Set<String> artists_sstr = redis.smembers(keyOfArtists);
 		for (String artist_str : artists_sstr) {
-			artists.add(new Artist(artist_str, bandName));
+//			artists.add(new Artist(artist_str, bandName));
+			addArtist(new Artist(artist_str, bandName));
 		}
 	}
 
@@ -47,6 +48,10 @@ public class Band {
 		
 		return new Document("_id",bandName)
 							.append("artists", artist_docs);
+	}
+	
+	public void addArtist(Artist artist) {
+		artists.add(artist);
 	}
 	
 	

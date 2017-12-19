@@ -19,7 +19,7 @@ public class Artist {
 	static private Neo4jDB neo4j = null;
 	@JsonbProperty("name")
 	private String artistName;
-	private LinkedList<String> roles;
+	protected LinkedList<String> roles;
 //	@JsonbTransient
 //	private StringBuilder stringBuilder;
 //	private JsonbConfig config;
@@ -36,6 +36,10 @@ public class Artist {
 		
 		return result;
 		
+	}
+	
+	public void addRole(String role) {
+		roles.add(role);
 	}
 	
 
@@ -65,12 +69,7 @@ public class Artist {
 	}
 
 	public Artist() {
-//		roles = null;
-//		config = new JsonbConfig().withFormatting(true);
-//		config.withNullValues(true);
-//		jsonb = JsonbBuilder.create(config);
 		roles = new LinkedList<String>();
-//		stringBuilder = new StringBuilder("artist:");
 	}
 
 	public Artist(String artist, String bandName) {
@@ -87,7 +86,8 @@ public class Artist {
 
 		for (String role : roles_sstr) {
 //			if(roles == null) { roles = new LinkedList<String>();}
-			roles.add(role.trim());
+//			roles.add(role.trim());
+			addRole(role.trim());
 //			System.out.format("DEBUG3>> %s%n", role);
 		}
 //		roles.add("DJ Police");
